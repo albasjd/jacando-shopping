@@ -32,6 +32,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ### Further development
 
 - [ ] Add tests
+- [ ] Better validation on BE
 - [ ] Better error handling
-- [ ] Implement a better notification system
+- [ ] Better notification system on FE
 - [ ] Add future features
