@@ -7,7 +7,7 @@ import App from "./App";
 
 import "./index.css";
 
-const uri = "http://localhost:3001/graphql";
+const uri = "https://jacando-server.onrender.com/graphql";
 const cache = new InMemoryCache();
 
 const client = new ApolloClient({
