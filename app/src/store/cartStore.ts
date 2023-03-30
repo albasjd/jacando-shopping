@@ -1,7 +1,8 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
-import { ProductType } from "../types/Product";
+import { create, useStore } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+import { ProductType } from '../types/Product';
+import { derive } from 'derive-zustand';
 
 export type CartItemState = {
   product: ProductType;
@@ -10,7 +11,6 @@ export type CartItemState = {
 
 type CartState = {
   products: CartItemState[];
-  total: number;
   addToCart: (item: ProductType) => void;
   incrementQuantity: (id: string) => void;
   decrementQuantity: (id: string) => void;
@@ -26,7 +26,6 @@ const useCart = create<CartState>()(
   persist(
     immer((set) => ({
       products: [],
-      total: 0,
 
       addToCart: (item) =>
         set((state) => {
@@ -38,8 +37,6 @@ const useCart = create<CartState>()(
             stillInStock(state.products[itemIndex]) &&
               state.products[itemIndex].quantity++;
           }
-
-          state.total += item.price;
         }),
 
       incrementQuantity: (id) =>
@@ -49,7 +46,6 @@ const useCart = create<CartState>()(
 
           if (stillInStock(cartItem)) {
             cartItem.quantity++;
-            state.total += cartItem.product.price;
           }
         }),
 
@@ -63,16 +59,22 @@ const useCart = create<CartState>()(
           } else {
             cartItem.quantity--;
           }
-
-          state.total -= cartItem.product.price;
         }),
 
-      clearCart: () => set({ products: [], total: 0 }),
+      clearCart: () => set({ products: [] }),
     })),
     {
-      name: "cart",
+      name: 'cart',
     }
   )
 );
+
+const cartTotalStore = derive<number>((get) =>
+  get(useCart).products.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0
+  )
+);
+export const useCartTotal = () => useStore(cartTotalStore);
 
 export default useCart;

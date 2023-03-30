@@ -1,34 +1,35 @@
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment } from 'react';
 import { useOpenCart } from '../store/appStore';
-import useCart, { CartItemState } from '../store/cartStore';
+import useCart, { CartItemState, useCartTotal } from '../store/cartStore';
 import { useCurrentMode } from '../store/themeStore';
 import CartItem from '../components/CartItem';
 import { useMutation } from '@apollo/client';
 import { CREATE_ORDER } from '../gql/orders';
 import Spinner from '../components/Spinner';
+import { OrderCreated } from '../types/Order';
 
 const mapProductsToOrder = (products: CartItemState[]) =>
   products.map(({ product, quantity }) => ({ product: product.id, quantity }));
 
 export default function CartModal() {
-  const currentMode = useCurrentMode((state) => state.currentMode);
+  const currentMode = useCurrentMode(state => state.currentMode);
   const isOpen = useOpenCart(state => state.isOpen);
   const toggleOpen = useOpenCart(state => state.toggleOpen);
   const products = useCart(state => state.products);
   const incrementQuantity = useCart(state => state.incrementQuantity);
   const decrementQuantity = useCart(state => state.decrementQuantity);
   const clearCart = useCart(state => state.clearCart);
-  const total = useCart(state => state.total);
+  const total = useCartTotal();
 
   const [mutateFunction, { loading }] = useMutation(CREATE_ORDER, {
     variables: {
       command: {
         products: mapProductsToOrder(products),
-        user: 'John Doe'
-      }
+        user: 'John Doe',
+      },
     },
-    onCompleted: (data) => {
+    onCompleted: (data: { createOrder: OrderCreated }) => {
       // TODO: Replace with toast
       const date = new Date(data.createOrder.createdAt);
       const message = `Order Created Successfully!
@@ -36,13 +37,13 @@ export default function CartModal() {
       By: ${data.createOrder.user}
       Create at: ${new Intl.DateTimeFormat('en-GB', {
         dateStyle: 'full',
-        timeStyle: 'long'
+        timeStyle: 'long',
       }).format(date)}
       `;
       alert(message);
       clearCart();
       toggleOpen();
-    }
+    },
   });
 
   function handleOnClearCart() {
@@ -83,8 +84,7 @@ export default function CartModal() {
               leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             >
               <div className={currentMode === 'Dark' ? 'dark' : ''}>
-                <Dialog.Panel
-                  className='relative transform overflow-hidden rounded-lg dark:bg-secondary-dark-bg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full min-w-full'>
+                <Dialog.Panel className='relative transform overflow-hidden rounded-lg dark:bg-secondary-dark-bg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full min-w-full'>
                   <div className='dark:bg-secondary-dark-bg bg-main-bg px-4 pt-5 pb-4 sm:p-6 sm:pb-4'>
                     <div className='sm:flex sm:items-start'>
                       <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
