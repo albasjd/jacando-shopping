@@ -69,12 +69,16 @@ const useCart = create<CartState>()(
   )
 );
 
-const cartTotalStore = derive<number>((get) =>
+const cartTotalPriceStore = derive<number>((get) =>
   get(useCart).products.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0
   )
 );
-export const useCartTotal = () => useStore(cartTotalStore);
+export const useCartTotalPrice = () => useStore(cartTotalPriceStore);
+const cartTotalItemsStore = derive<number>((get) =>
+  get(useCart).products.reduce((total, item) => total + item.quantity, 0)
+);
+export const useCartTotalItems = () => useStore(cartTotalItemsStore);
 
 export default useCart;

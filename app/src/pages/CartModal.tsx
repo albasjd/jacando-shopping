@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment } from 'react';
 import { useOpenCart } from '../store/appStore';
-import useCart, { CartItemState, useCartTotal } from '../store/cartStore';
+import useCart, { CartItemState, useCartTotalPrice } from '../store/cartStore';
 import { useCurrentMode } from '../store/themeStore';
 import CartItem from '../components/CartItem';
 import { useMutation } from '@apollo/client';
@@ -13,14 +13,14 @@ const mapProductsToOrder = (products: CartItemState[]) =>
   products.map(({ product, quantity }) => ({ product: product.id, quantity }));
 
 export default function CartModal() {
-  const currentMode = useCurrentMode(state => state.currentMode);
-  const isOpen = useOpenCart(state => state.isOpen);
-  const toggleOpen = useOpenCart(state => state.toggleOpen);
-  const products = useCart(state => state.products);
-  const incrementQuantity = useCart(state => state.incrementQuantity);
-  const decrementQuantity = useCart(state => state.decrementQuantity);
-  const clearCart = useCart(state => state.clearCart);
-  const total = useCartTotal();
+  const currentMode = useCurrentMode((state) => state.currentMode);
+  const isOpen = useOpenCart((state) => state.isOpen);
+  const toggleOpen = useOpenCart((state) => state.toggleOpen);
+  const products = useCart((state) => state.products);
+  const incrementQuantity = useCart((state) => state.incrementQuantity);
+  const decrementQuantity = useCart((state) => state.decrementQuantity);
+  const clearCart = useCart((state) => state.clearCart);
+  const total = useCartTotalPrice();
 
   const [mutateFunction, { loading }] = useMutation(CREATE_ORDER, {
     variables: {
